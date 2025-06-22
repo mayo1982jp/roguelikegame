@@ -34,18 +34,22 @@ const player = {
     projectileDamage: 1
 };
 
-const keysPressed = {};
+// const keysPressed = {}; // Removed: keyboard input no longer used for movement
 const experienceGems = [];
 const enemies = [];
 const projectiles = [];
 let enemySpawnInterval;
 
-document.addEventListener('keydown', (event) => {
-    keysPressed[event.key.toLowerCase()] = true;
-});
+// Removed keydown and keyup event listeners as they are no longer needed for movement
 
-document.addEventListener('keyup', (event) => {
-    keysPressed[event.key.toLowerCase()] = false;
+// Added mouse position tracking
+let mouseX = canvas.width / 2;
+let mouseY = canvas.height / 2;
+
+canvas.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = event.clientX - rect.left;
+    mouseY = event.clientY - rect.top;
 });
 
 function drawPlayer() {
@@ -59,20 +63,24 @@ function drawPlayer() {
     }
 }
 
-function updatePlayerMovement() { /* Omitted for brevity, remains unchanged */
-    player.dx = 0;
-    player.dy = 0;
-    if (keysPressed['arrowleft'] || keysPressed['a']) player.dx = -player.speed;
-    if (keysPressed['arrowright'] || keysPressed['d']) player.dx = player.speed;
-    if (keysPressed['arrowup'] || keysPressed['w']) player.dy = -player.speed;
-    if (keysPressed['arrowdown'] || keysPressed['s']) player.dy = player.speed;
-    if (player.dx !== 0 && player.dy !== 0) {
-        const factor = Math.sqrt(2);
-        player.dx /= factor;
-        player.dy /= factor;
+function updatePlayerMovement() {
+    const targetX = mouseX - player.width / 2;
+    const targetY = mouseY - player.height / 2;
+
+    const dx = targetX - player.x;
+    const dy = targetY - player.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Dead zone of 5 pixels around the cursor
+    if (distance > 5) {
+        const moveX = (dx / distance) * player.speed;
+        const moveY = (dy / distance) * player.speed;
+
+        player.x += moveX;
+        player.y += moveY;
     }
-    player.x += player.dx;
-    player.y += player.dy;
+
+    // Keep player within canvas bounds
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
     if (player.y < 0) player.y = 0;
