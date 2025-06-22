@@ -131,7 +131,7 @@ function checkLevelUp() { /* Omitted for brevity, remains unchanged */
         player.xp -= player.xpToNextLevel;
         player.xpToNextLevel = player.level;
         console.log(`Level Up! Reached Level: ${player.level}. XP: ${player.xp}/${player.xpToNextLevel}`);
-        alert(`Level Up! Reached Level: ${player.level}`);
+        // alert(`Level Up! Reached Level: ${player.level}`); // Removed level-up pop-up
     }
 }
 
@@ -169,20 +169,51 @@ function updateEnemies() { /* Omitted for brevity, remains unchanged */
     });
 }
 
-function fireProjectile() { /* Omitted for brevity, remains unchanged */
-    const newProjectile = {
-        x: player.x + player.width / 2 - player.projectileWidth / 2, y: player.y,
-        width: player.projectileWidth, height: player.projectileHeight, speed: player.projectileSpeed,
-        color: player.projectileColor, damage: player.projectileDamage
-    };
-    projectiles.push(newProjectile);
+function fireProjectile() {
+    if (enemies.length === 0) {
+        return; // Don't fire if there are no enemies
+    }
+
+    let closestEnemy = null;
+    let minDistance = Infinity;
+
+    enemies.forEach(enemy => {
+        const dx = enemy.x - player.x;
+        const dy = enemy.y - player.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestEnemy = enemy;
+        }
+    });
+
+    if (closestEnemy) {
+        const angle = Math.atan2(closestEnemy.y - player.y, closestEnemy.x - player.x);
+        const newProjectile = {
+            x: player.x + player.width / 2 - player.projectileWidth / 2,
+            y: player.y + player.height / 2 - player.projectileHeight / 2,
+            width: player.projectileWidth,
+            height: player.projectileHeight,
+            speed: player.projectileSpeed,
+            color: player.projectileColor,
+            damage: player.projectileDamage,
+            dx: Math.cos(angle) * player.projectileSpeed,
+            dy: Math.sin(angle) * player.projectileSpeed
+        };
+        projectiles.push(newProjectile);
+    }
 }
 
-function updateProjectiles() { /* Omitted for brevity, remains unchanged */
+function updateProjectiles() {
     for (let i = projectiles.length - 1; i >= 0; i--) {
         const p = projectiles[i];
-        p.y -= p.speed;
-        if (p.y + p.height < 0) projectiles.splice(i, 1);
+        p.x += p.dx;
+        p.y += p.dy;
+
+        // Remove projectile if it goes off screen
+        if (p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height) {
+            projectiles.splice(i, 1);
+        }
     }
 }
 
