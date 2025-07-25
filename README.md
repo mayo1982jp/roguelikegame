@@ -1,4 +1,5 @@
 # Endless Survivors (エンドレスサバイバーズ)
+<img width="1144" height="827" alt="image" src="https://github.com/user-attachments/assets/6f3b8b2f-6935-4ff8-afc4-61beec3089df" />
 
 A browser-based survival game where you control a character that automatically attacks enemies while you focus on movement and survival.
 
