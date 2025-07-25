@@ -41,4 +41,4 @@ A browser-based survival game where you control a character that automatically a
 
 ---
 
-2025/06/04にJulesで作成しました
+2025/06/04にGoogle Julesで作成しました
